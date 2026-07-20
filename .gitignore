@@ -1,0 +1,60 @@
+# =========================
+# 1. OS & IDE (에디터 및 운영체제 찌꺼기)
+# =========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# =========================
+# 2. BackEnd (Spring Boot, Java, Maven)
+# =========================
+# Maven 빌드 결과물
+target/
+backend/target/
+# Maven Wrapper jar 파일은 남겨두고 나머지만 무시 (에이전트가 빌드할 때 필요)
+!/.mvn/wrapper/maven-wrapper.jar
+!/backend/.mvn/wrapper/maven-wrapper.jar
+
+# 자바 및 로그
+*.class
+*.log
+*.jar
+*.war
+
+# =========================
+# 3. FrontEnd (React, Node.js)
+# =========================
+# 의존성 모듈 (절대 깃에 올라가면 안 됨)
+node_modules/
+frontend/node_modules/
+
+# 빌드 결과물
+build/
+dist/
+frontend/build/
+frontend/dist/
+
+# NPM 로그 에러
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# 4. Security & Environment (보안 및 환경 변수)
+# =========================
+# 🚨 CLAUDE.md 보안 원칙에 따라 시크릿 파일 및 로컬 환경변수는 무조건 제외
+.env
+.env.*
+!.env.example  # 환경변수 템플릿 파일은 제외하지 않음(팀원 공유용)
+*.pem
+*.key
+credentials.json
+
+# =========================
+# 5. Database (H2)
+# =========================
+# 현재 DB는 D드라이브 외부 경로를 쓰시지만, 만약 프로젝트 내부로 변경될 경우를 대비
+*.mv.db
+*.trace.db
