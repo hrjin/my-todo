@@ -58,3 +58,8 @@ credentials.json
 # 현재 DB는 D드라이브 외부 경로를 쓰시지만, 만약 프로젝트 내부로 변경될 경우를 대비
 *.mv.db
 *.trace.db
+
+# =========================
+# 6. Claude Code (개인 로컬 설정은 공유 금지)
+# =========================
+.claude/settings.local.json

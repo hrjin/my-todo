@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(jar tf *)",
+      "Bash(JAVA_HOME=\"/d/Workspace/java\" ./mvnw.cmd test -q)",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(grep -c \"\" /tmp_test_output.log)",
+      "Bash(xargs -I{} sh -c 'echo == {} ==; cat {}')",
+      "Bash(curl -s -X POST http://localhost:8080/api/todos -H \"Content-Type: application/json\" -d '{\"title\":\"장보기\",\"description\":\"우유 사기\"}')",
+      "Bash(curl -s http://localhost:8080/api/todos)",
+      "Bash(curl -s http://localhost:8080/api/todos/1)",
+      "Bash(curl -s -X PUT http://localhost:8080/api/todos/1 -H \"Content-Type: application/json\" -d '{\"title\":\"장보기 완료\",\"description\":\"우유+계란\"}')",
+      "Bash(curl -s -X PATCH http://localhost:8080/api/todos/1/toggle)",
+      "Bash(curl -s -X POST http://localhost:8080/api/todos -H 'Content-Type: application/json; charset=utf-8' --data-binary '@C:\\\\Users\\\\hrjin\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--Workspace-Project-my-todo\\\\d81e1e70-8d9b-46dd-bd5a-2dd5fc5bbeb9\\\\scratchpad/create.json')",
+      "Bash(curl -s -X PUT http://localhost:8080/api/todos/1 -H 'Content-Type: application/json; charset=utf-8' --data-binary '@C:\\\\Users\\\\hrjin\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--Workspace-Project-my-todo\\\\d81e1e70-8d9b-46dd-bd5a-2dd5fc5bbeb9\\\\scratchpad/update.json')",
+      "Bash(taskkill //F //IM java.exe)",
+      "Bash(curl -s -X DELETE http://localhost:8080/api/todos/1)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" http://localhost:8080/api/todos/1)"
+    ]
+  }
+}
