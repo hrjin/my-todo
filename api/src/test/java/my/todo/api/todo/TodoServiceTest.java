@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,21 +33,25 @@ class TodoServiceTest {
 
     @Test
     void create_savesAndReturnsTodoResponse() {
-        TodoCreateRequest request = new TodoCreateRequest("장보기", "우유 사기");
-        Todo saved = new Todo("장보기", "우유 사기");
+        TodoCreateRequest request = new TodoCreateRequest(
+                "장보기", "우유 사기", Category.PERSONAL, Priority.HIGH, LocalDate.of(2026, 8, 20));
+        Todo saved = new Todo("장보기", "우유 사기", Category.PERSONAL, Priority.HIGH, LocalDate.of(2026, 8, 20));
         given(todoRepository.save(any(Todo.class))).willReturn(saved);
 
         TodoResponse response = service().create(request);
 
         assertThat(response.title()).isEqualTo("장보기");
         assertThat(response.description()).isEqualTo("우유 사기");
+        assertThat(response.category()).isEqualTo(Category.PERSONAL);
+        assertThat(response.priority()).isEqualTo(Priority.HIGH);
+        assertThat(response.dueDate()).isEqualTo(LocalDate.of(2026, 8, 20));
     }
 
     @Test
     void getAll_returnsAllTodosAsResponses() {
         given(todoRepository.findAll()).willReturn(List.of(
-                new Todo("장보기", "우유 사기"),
-                new Todo("청소하기", null)
+                new Todo("장보기", "우유 사기", null, null, null),
+                new Todo("청소하기", null, null, null, null)
         ));
 
         List<TodoResponse> responses = service().getAll();
@@ -56,7 +61,7 @@ class TodoServiceTest {
 
     @Test
     void getOne_returnsTodoResponse_whenExists() {
-        Todo todo = new Todo("장보기", "우유 사기");
+        Todo todo = new Todo("장보기", "우유 사기", null, null, null);
         given(todoRepository.findById(1L)).willReturn(Optional.of(todo));
 
         TodoResponse response = service().getOne(1L);
@@ -73,27 +78,31 @@ class TodoServiceTest {
     }
 
     @Test
-    void update_updatesTitleAndDescription_whenExists() {
-        Todo todo = new Todo("장보기", "우유 사기");
+    void update_updatesAllMutableFields_whenExists() {
+        Todo todo = new Todo("장보기", "우유 사기", null, null, null);
         given(todoRepository.findById(1L)).willReturn(Optional.of(todo));
 
-        TodoResponse response = service().update(1L, new TodoUpdateRequest("장보기 완료", "우유+계란"));
+        TodoResponse response = service().update(1L, new TodoUpdateRequest(
+                "장보기 완료", "우유+계란", Category.WORK, Priority.LOW, LocalDate.of(2026, 9, 1)));
 
         assertThat(response.title()).isEqualTo("장보기 완료");
         assertThat(response.description()).isEqualTo("우유+계란");
+        assertThat(response.category()).isEqualTo(Category.WORK);
+        assertThat(response.priority()).isEqualTo(Priority.LOW);
+        assertThat(response.dueDate()).isEqualTo(LocalDate.of(2026, 9, 1));
     }
 
     @Test
     void update_throwsTodoNotFoundException_whenNotExists() {
         given(todoRepository.findById(999L)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service().update(999L, new TodoUpdateRequest("t", "d")))
+        assertThatThrownBy(() -> service().update(999L, new TodoUpdateRequest("t", "d", null, null, null)))
                 .isInstanceOf(TodoNotFoundException.class);
     }
 
     @Test
     void delete_deletesTodo_whenExists() {
-        Todo todo = new Todo("장보기", "우유 사기");
+        Todo todo = new Todo("장보기", "우유 사기", null, null, null);
         given(todoRepository.findById(1L)).willReturn(Optional.of(todo));
 
         service().delete(1L);
@@ -112,7 +121,7 @@ class TodoServiceTest {
 
     @Test
     void toggle_flipsCompletedStatus_whenExists() {
-        Todo todo = new Todo("장보기", "우유 사기");
+        Todo todo = new Todo("장보기", "우유 사기", null, null, null);
         given(todoRepository.findById(1L)).willReturn(Optional.of(todo));
 
         TodoResponse response = service().toggle(1L);

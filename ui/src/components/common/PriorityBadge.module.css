@@ -1,0 +1,23 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-hover);
+  color: var(--color-text-muted);
+}
+
+.badge[data-priority='HIGH'] {
+  color: var(--color-priority-high);
+}
+
+.badge[data-priority='MEDIUM'] {
+  color: var(--color-priority-medium);
+}
+
+.badge[data-priority='LOW'] {
+  color: var(--color-priority-low);
+}

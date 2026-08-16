@@ -1,0 +1,62 @@
+.wrapper {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.trigger[data-active='true'] {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 10px;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 140px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-md);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+}
+
+.option:hover {
+  background: var(--color-bg-hover);
+}

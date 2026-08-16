@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,7 +40,8 @@ class TodoControllerTest {
     private TodoService todoService;
 
     private TodoResponse sampleResponse() {
-        return new TodoResponse(1L, "장보기", "우유 사기", false, LocalDateTime.now(), LocalDateTime.now());
+        return new TodoResponse(1L, "장보기", "우유 사기", false,
+                Category.PERSONAL, Priority.HIGH, LocalDate.of(2026, 8, 20), LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test
@@ -48,7 +50,8 @@ class TodoControllerTest {
 
         mockMvc.perform(post("/api/todos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TodoCreateRequest("장보기", "우유 사기"))))
+                        .content(objectMapper.writeValueAsString(new TodoCreateRequest(
+                                "장보기", "우유 사기", Category.PERSONAL, Priority.HIGH, LocalDate.of(2026, 8, 20)))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.title").value("장보기"));
@@ -58,7 +61,17 @@ class TodoControllerTest {
     void createTodo_returns400_whenTitleBlank() throws Exception {
         mockMvc.perform(post("/api/todos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TodoCreateRequest("", null))))
+                        .content(objectMapper.writeValueAsString(new TodoCreateRequest("", null, null, null, null))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void createTodo_returns400_whenPriorityIsInvalidEnumValue() throws Exception {
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"장보기\",\"priority\":\"URGENT\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
@@ -99,7 +112,8 @@ class TodoControllerTest {
 
         mockMvc.perform(put("/api/todos/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new TodoUpdateRequest("장보기 완료", "우유+계란"))))
+                        .content(objectMapper.writeValueAsString(new TodoUpdateRequest(
+                                "장보기 완료", "우유+계란", Category.WORK, Priority.LOW, LocalDate.of(2026, 9, 1)))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
     }
@@ -113,7 +127,8 @@ class TodoControllerTest {
 
     @Test
     void toggleTodo_returns200AndFlippedStatus() throws Exception {
-        TodoResponse toggled = new TodoResponse(1L, "장보기", "우유 사기", true, LocalDateTime.now(), LocalDateTime.now());
+        TodoResponse toggled = new TodoResponse(1L, "장보기", "우유 사기", true,
+                Category.PERSONAL, Priority.HIGH, LocalDate.of(2026, 8, 20), LocalDateTime.now(), LocalDateTime.now());
         given(todoService.toggle(1L)).willReturn(toggled);
 
         mockMvc.perform(patch("/api/todos/{id}/toggle", 1L))

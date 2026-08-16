@@ -20,7 +20,8 @@ public class TodoService {
     }
 
     public TodoResponse create(TodoCreateRequest request) {
-        Todo saved = todoRepository.save(new Todo(request.title(), request.description()));
+        Todo saved = todoRepository.save(new Todo(
+                request.title(), request.description(), request.category(), request.priority(), request.dueDate()));
         return TodoResponse.from(saved);
     }
 
@@ -38,7 +39,7 @@ public class TodoService {
 
     public TodoResponse update(Long id, TodoUpdateRequest request) {
         Todo todo = findTodoOrThrow(id);
-        todo.update(request.title(), request.description());
+        todo.update(request.title(), request.description(), request.category(), request.priority(), request.dueDate());
         return TodoResponse.from(todo);
     }
 

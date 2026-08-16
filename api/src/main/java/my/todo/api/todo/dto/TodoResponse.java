@@ -1,7 +1,10 @@
 package my.todo.api.todo.dto;
 
+import my.todo.api.todo.Category;
+import my.todo.api.todo.Priority;
 import my.todo.api.todo.Todo;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record TodoResponse(
@@ -9,6 +12,9 @@ public record TodoResponse(
         String title,
         String description,
         boolean completed,
+        Category category,
+        Priority priority,
+        LocalDate dueDate,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -18,6 +24,9 @@ public record TodoResponse(
                 todo.getTitle(),
                 todo.getDescription(),
                 todo.isCompleted(),
+                todo.getCategory(),
+                todo.getPriority(),
+                todo.getDueDate(),
                 todo.getCreatedAt(),
                 todo.getUpdatedAt()
         );

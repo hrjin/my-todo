@@ -3,6 +3,7 @@ package my.todo.api.exception;
 import my.todo.api.common.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,6 +25,11 @@ public class GlobalExceptionHandler {
                 .findFirst()
                 .orElse("잘못된 요청입니다.");
         return ResponseEntity.badRequest().body(ApiResponse.error("VALIDATION_ERROR", message));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnreadable(HttpMessageNotReadableException e) {
+        return ResponseEntity.badRequest().body(ApiResponse.error("VALIDATION_ERROR", "요청 본문을 읽을 수 없습니다."));
     }
 
     @ExceptionHandler(Exception.class)

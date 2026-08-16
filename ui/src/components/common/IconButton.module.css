@@ -1,0 +1,16 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.button:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+}

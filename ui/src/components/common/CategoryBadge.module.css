@@ -1,0 +1,24 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-hover);
+}
+
+.badge[data-category='WORK'] {
+  color: var(--color-category-work);
+  background: color-mix(in srgb, var(--color-category-work) 12%, transparent);
+}
+
+.badge[data-category='PERSONAL'] {
+  color: var(--color-category-personal);
+  background: color-mix(in srgb, var(--color-category-personal) 12%, transparent);
+}
+
+.badge[data-category='STUDY'] {
+  color: var(--color-category-study);
+  background: color-mix(in srgb, var(--color-category-study) 12%, transparent);
+}

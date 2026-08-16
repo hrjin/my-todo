@@ -1,0 +1,37 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg-subtle);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
