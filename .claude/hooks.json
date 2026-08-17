@@ -1,0 +1,43 @@
+{
+  "hooks": {
+    "pre-commit": [
+      {
+        "commands": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/skills/commit-conventions/scripts/check-commit-msg.sh\"",
+            "timeout": 10,
+            "statusMessage": "커밋 메시지 검증 중..."
+          }
+        ]
+      }
+    ],
+    "pre-push": [
+      {
+        "commands": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/skills/commit-conventions/scripts/check-branch-naming.sh\"",
+            "timeout": 10,
+            "statusMessage": "브랜치 네이밍 검증 중..."
+          }
+        ]
+      }
+    ],
+    "stop": [
+      {
+        "commands": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/skills/verify-changed/scripts/verify.sh\"",
+            "timeout": 300,
+            "statusMessage": "변경된 영역 타입체크/린트/컴파일 중..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -38,12 +38,86 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `SPRING_DATASOURCE_URL`: H2 DB 경로 (기본 jdbc:h2:file:/app/data/todo-db)
 
 # 🛠️ Skills & Hooks
-- **Skills** (`.claude/skills/`)
-  - `validate-input.sh`: 입력값 검증 (API 요청본문, UI 입력폼, Dockerfile 형식)
-    - 사용: `bash .claude/skills/validate-input.sh [api|ui|docker]`
-- **Hooks** (`.git/hooks/`)
-  - `commit-msg`: 커밋 메시지 10자 이상 검증
-  - `pre-push`: 브랜치 네이밍 컨벤션 검증 (feature/*, fix/*, refactor/*, test/*)
+
+## 개념 이해
+
+- **Skill** = "**무엇을**" 실행하는가? (실제 구현, 재사용 가능한 로직)
+- **Hook** = "**언제** 실행하는가?" (Skill을 호출하는 시점 정의)
+
+```
+Hook (hooks.json)          Skill (.claude/skills/)
+┌─ pre-commit ─────────→ commit-conventions/
+├─ pre-push  ─────────→ commit-conventions/
+└─ stop      ─────────→ verify-changed/
+```
+
+## Skills (`.claude/skills/`)
+
+- **`validate-input/`** — API/UI/Docker 입력값 검증
+  - 스크립트: `scripts/validate.sh [api|ui|docker]`
+  - 수동 실행: `bash .claude/skills/validate-input/scripts/validate.sh api`
+
+- **`commit-conventions/`** — 커밋 메시지 & 브랜치 네이밍 검증
+  - 스크립트: `scripts/check-commit-msg.sh` (커밋 메시지 10자 이상)
+  - 스크립트: `scripts/check-branch-naming.sh` (feature/*, fix/*, refactor/*, test/*)
+  - Hook이 자동 호출: pre-commit, pre-push
+
+- **`verify-changed/`** — 변경 영역 타입체크/린트/컴파일
+  - 스크립트: `scripts/verify.sh`
+  - `ui/` 변경 시: `tsc -b` + `eslint`
+  - `api/` 변경 시: `mvnw test-compile`
+  - Hook이 자동 호출: stop (Turn 끝)
+
+## Hooks (`.claude/hooks.json`)
+
+모든 훅은 `.claude/hooks.json`에서 중앙 관리되며, 다음 시점에 Skill을 자동 실행:
+
+- **`pre-commit`** — 커밋 시점 → `commit-conventions/scripts/check-commit-msg.sh` 실행
+- **`pre-push`** — 푸시 시점 → `commit-conventions/scripts/check-branch-naming.sh` 실행
+- **`stop`** — Turn 끝 시점 → `verify-changed/scripts/verify.sh` 실행
+
+## 🔌 Plugin (`.claude/plugins/my-todo-template/`)
+
+이 프로젝트는 **Claude Code Plugin**으로 등록되어, 다른 사용자가 템플릿으로 사용할 수 있습니다.
+
+### 🎯 Plugin의 역할
+
+다른 디렉토리에서 Claude Code를 열 때:
+```bash
+claude init --template my-todo-template
+```
+실행하면 **자동으로 my-todo 프로젝트 구조 전체가 복제**됩니다:
+- React UI (TypeScript, Vite)
+- Spring Boot API (Java 21, Maven)
+- Docker 설정 (dev/prod)
+- `.claude/` 설정 (Skills, Hooks, CLAUDE.md)
+- 모든 빌드/테스트 설정
+
+### 🚀 다른 사람의 사용 방법
+
+```bash
+# 1. 새 디렉토리로 이동
+cd /my/new/project
+
+# 2. Template 초기화
+claude init --template my-todo-template
+
+# 3. 프로젝트 설정값 입력 (대화형)
+# - 프로젝트명 (기본: my-todo)
+# - Java 버전 (21 또는 17)
+# - Docker 포함 여부 (Yes/No)
+# - GitHub 사용자명 (선택사항)
+
+# 4. 완료! 전체 프로젝트 생성됨
+# ✅ npm install 자동 실행
+# ✅ Maven 자동 설치
+# ✅ CLAUDE.md로 개발 시작 가능
+```
+
+### Plugin 파일 구조
+
+- **`plugin.yml`** — Plugin 메타데이터, 초기화 프롬프트, 자동 설치 명령 정의
+- **`README.md`** — Plugin 사용 설명서
 
 # 구현 방향
 ## 🛠️ Build & Test Commands
@@ -59,8 +133,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - 세 명령은 서로 다른 것을 검사한다. `npm run build`는 타입체크+번들링만 하며 테스트도 린트도 돌지 않는다.
 
 ## 🪝 검증 자동화 (Harness)
-- `.claude/settings.json`의 `Stop` 훅이 `.claude/hooks/verify-changed.sh`를 실행한다. 턴이 끝날 때 **git으로 변경이 감지된 영역만** 검사한다: `ui/` 변경 시 `tsc -b` + `eslint`, `api/` 변경 시 `mvnw test-compile`.
-- 실패하면 `exit 2`로 차단되고 실패 내용이 에이전트에게 되돌아온다. 변경이 없으면 아무것도 실행하지 않는다.
+- `.claude/hooks.json`에서 모든 훅을 중앙 관리한다:
+  - **pre-commit** 훅: 커밋 메시지 10자 이상 검증
+  - **pre-push** 훅: 브랜치 네이밍 컨벤션 검증 (feature/*, fix/*, refactor/*, test/*)
+  - **stop** 훅: 턴 끝 시 변경 영역 검증 (ui: `tsc -b` + `eslint`, api: `mvnw test-compile`)
+- 실패하면 `exit 1` (pre-commit/pre-push) 또는 `exit 2` (stop)로 차단되고 실패 내용이 에이전트에게 되돌아온다.
 - Git Bash 의존(`shell: bash`). JDK 21 경로는 환경변수 `JAVA_HOME_21`로 재정의 가능하며, 미설정 시 `D:\Workspace\java`를 사용한다.
 
 ## 🏗️ BackEnd 아키텍처 (`api`)

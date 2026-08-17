@@ -1,0 +1,179 @@
+name: my-todo-template
+version: "1.0.0"
+description: "React + SpringBoot + H2 + Docker를 이용한 TODO List 풀스택 프로젝트 템플릿"
+author: "Claude Code Harness Engineering"
+repository: "https://github.com/your-username/my-todo"
+
+# 카테고리
+category: "fullstack-template"
+tags:
+  - react
+  - typescript
+  - springboot
+  - java
+  - h2-database
+  - docker
+  - fullstack
+  - maven
+  - vite
+
+# 템플릿 메타데이터
+template:
+  displayName: "My TODO - Fullstack Project"
+  description: |
+    React (TypeScript, Vite) + Spring Boot 4.1 (Java 21, Maven) + H2 Database + Docker
+
+    특징:
+    - React + TypeScript (Vite 번들러)
+    - Spring Boot 4.1 (Java 21)
+    - H2 Database (파일 기반)
+    - Docker & Docker Compose
+    - TanStack Query (서버 상태 관리)
+    - CSS Modules (스타일링)
+    - Vitest + React Testing Library
+    - ESLint + TypeScript strict mode
+    - 자동 검증 (Skills & Hooks)
+    - CLAUDE.md 기반 개발 가이드
+
+  estimatedTime: "10분"
+  difficulty: "intermediate"
+
+  keywords:
+    - fullstack
+    - react
+    - springboot
+    - docker
+    - todo-app
+    - harness-engineering
+
+  # 프로젝트 초기화 시 물어볼 질문들
+  prompts:
+    - name: projectName
+      type: string
+      message: "프로젝트명을 입력하세요 (영문, 소문자, 하이픈 가능)"
+      default: "my-todo"
+      validation: "^[a-z0-9-]+$"
+
+    - name: projectDescription
+      type: string
+      message: "프로젝트 설명을 입력하세요"
+      default: "My TODO List Application"
+
+    - name: javaVersion
+      type: choice
+      message: "Java 버전을 선택하세요"
+      choices:
+        - "21"
+        - "17"
+      default: "21"
+
+    - name: useDocker
+      type: boolean
+      message: "Docker를 포함할까요?"
+      default: true
+
+    - name: githubUsername
+      type: string
+      message: "GitHub 사용자명 (선택사항)"
+      default: ""
+
+# 포함될 파일/폴더 (경로는 my-todo 루트 기준)
+include:
+  - CLAUDE.md
+  - README.md
+  - .gitignore
+  - .claude/
+  - api/
+  - ui/
+  - docker/
+  - docker-compose.yml
+  - docker-compose.prod.yml
+
+exclude:
+  - node_modules/
+  - api/target/
+  - ".git/"
+  - "*.log"
+
+# 변수 치환 (템플릿 사용 시 자동으로 치환)
+variables:
+  projectName: "{{projectName}}"
+  projectDescription: "{{projectDescription}}"
+  javaVersion: "{{javaVersion}}"
+  authorName: "{{githubUsername || 'Developer'}}"
+
+# 초기화 후 실행할 명령어
+initialization:
+  # UI 의존성 설치
+  - condition: "fileExists('ui/package.json')"
+    commands:
+      - "cd ui && npm install"
+      - "cd ui && npm run build"
+
+  # API 의존성 설치
+  - condition: "fileExists('api/pom.xml')"
+    commands:
+      - "cd api && mvnw.cmd clean install -q"
+
+  # 초기화 완료 메시지
+  - message: |
+      ✅ 프로젝트 초기화 완료!
+
+      다음 명령어로 시작하세요:
+
+      1. API 서버 실행:
+         cd api && ./mvnw.cmd spring-boot:run
+
+      2. UI 개발 서버 실행:
+         cd ui && npm run dev
+
+      3. Docker 실행:
+         docker-compose up
+
+      📖 자세한 내용은 CLAUDE.md를 참고하세요!
+
+# 템플릿 직후 보여줄 파일
+postInitializationFiles:
+  - CLAUDE.md
+  - README.md
+  - .claude/CLAUDE.md
+
+# 의존성 요구사항
+requirements:
+  - name: "Node.js"
+    version: "18.0.0"
+    type: "runtime"
+
+  - name: "Java"
+    version: "17.0.0"
+    type: "runtime"
+
+  - name: "Maven"
+    version: "3.8.0"
+    type: "build-tool"
+
+  - name: "Docker"
+    version: "20.10.0"
+    type: "optional"
+    description: "Docker 배포를 원할 경우 설치 필요"
+
+# 학습 리소스
+resources:
+  - title: "프로젝트 가이드"
+    description: "CLAUDE.md에 상세한 개발 가이드가 있습니다"
+    type: "documentation"
+
+  - title: "Backend 아키텍처"
+    description: "Spring Boot + JPA + H2 Database 구조"
+    type: "documentation"
+
+  - title: "Frontend 아키텍처"
+    description: "React + TypeScript + TanStack Query 구조"
+    type: "documentation"
+
+# 라이선스
+license: "MIT"
+
+# 지원하는 IDE
+supportedIDEs:
+  - "claude-code"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Skill: 입력값 검증
 # 용도: API 요청 본문, UI 입력폼, Dockerfile 형식을 검증한다.
-# 사용: bash .claude/skills/validate-input.sh [api|ui|docker]
+# 사용: bash .claude/skills/validate-input/scripts/validate.sh [api|ui|docker]
 
 set -u
 

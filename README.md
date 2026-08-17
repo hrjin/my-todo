@@ -9,6 +9,54 @@ Harness Engineering 을 적용한 간단한 TODO List 작성 웹 사이트입니
 
 ---
 
+## 🔌 Template Plugin으로 사용하기
+
+이 프로젝트는 **Claude Code Plugin**으로 등록되어 있습니다. 다른 디렉토리에서 my-todo 구조를 템플릿으로 사용할 수 있습니다.
+
+### 🎯 Plugin의 역할
+
+이 plugin을 통해 다른 사람들이:
+- **다른 디렉토리에서** Claude Code를 열 때
+- `claude init --template my-todo-template` 실행하면
+- **자동으로 my-todo 프로젝트 구조 전체가 복제**됨
+  - ✅ React UI (TypeScript, Vite)
+  - ✅ Spring Boot API (Java 21, Maven)
+  - ✅ Docker 설정 (dev/prod)
+  - ✅ Skills & Hooks (자동 검증)
+  - ✅ CLAUDE.md (개발 가이드)
+  - ✅ 모든 설정
+
+### 🚀 다른 사람의 사용 방법
+
+```bash
+# 1. 새 디렉토리로 이동
+cd /my/new/project
+
+# 2. Template 초기화
+claude init --template my-todo-template
+
+# 3. 프로젝트 설정값 입력 (대화형)
+# - 프로젝트명 (기본: my-todo)
+# - Java 버전 (21 또는 17)
+# - Docker 포함 여부 (Yes/No)
+# - GitHub 사용자명 (선택사항)
+
+# 4. 완료! 전체 프로젝트 생성됨
+# ✅ npm install 자동 실행
+# ✅ Maven 자동 설치
+# ✅ CLAUDE.md로 개발 시작 가능
+```
+
+### Plugin 파일 위치
+
+```
+.claude/plugins/my-todo-template/
+├── plugin.yml       # Plugin 메타데이터, 초기화 프롬프트, 자동 명령
+└── README.md        # Plugin 사용 설명서
+```
+
+---
+
 ## 🚀 빠른 시작
 
 ### 1️⃣ API 실행
@@ -213,17 +261,22 @@ my-todo/
 │   └── docker-compose.prod.yml  # 프로덕션 구성
 │
 ├── .claude/
-│   ├── hooks/
-│   │   ├── verify-changed.sh    # 자동 검증 (Stop hook)
-│   │   └── 기타
-│   ├── skills/
-│   │   └── validate-input.sh    # 입력값 검증
-│   └── settings.json
+│   ├── CLAUDE.md                # Claude Code 개발 가이드
+│   ├── hooks.json               # 훅 중앙 관리
+│   ├── settings.json            # 프로젝트 설정
+│   ├── settings.local.json      # 개인 설정
+│   ├── skills/                  # Harness Engineering Skills
+│   │   ├── commit-conventions/  # 커밋 검증
+│   │   ├── validate-input/      # 입력값 검증
+│   │   └── verify-changed/      # 변경 영역 검증
+│   └── plugins/                 # Claude Code Plugin
+│       └── my-todo-template/    # Template Plugin
+│           ├── plugin.yml       # Plugin 메타데이터
+│           └── README.md        # Plugin 사용 설명
 │
-├── .git/
-│   └── hooks/
-│       ├── commit-msg      # 커밋 메시지 검증
-│       └── pre-push        # 브랜치 네이밍 검증
+├── .git/hooks/                 # Git Hooks (사용 안 함, hooks.json 사용)
+│   ├── prepare-commit-msg   # 커밋 메시지 검증 (백업)
+│   └── update-ref           # 브랜치 네이밍 검증 (백업)
 │
 └── CLAUDE.md               # Claude Code 가이드
 ```

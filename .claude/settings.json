@@ -17,20 +17,5 @@
       "Bash(curl -s -X DELETE http://localhost:8080/api/todos/1)",
       "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" http://localhost:8080/api/todos/1)"
     ]
-  },
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "shell": "bash",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/verify-changed.sh\"",
-            "timeout": 300,
-            "statusMessage": "변경된 영역 타입체크/린트/컴파일 중..."
-          }
-        ]
-      }
-    ]
   }
 }

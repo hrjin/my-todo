@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Update-ref hook: 브랜치 네이밍 컨벤션 검증
+# Pre-push hook: 브랜치 네이밍 컨벤션 검증
 # 허용되는 브랜치 패턴:
 #   - feature/*    : 기능 추가
 #   - fix/*        : 버그 수정
@@ -10,9 +10,21 @@
 
 set -u
 
-ref_name="$1"
-old_sha="$2"
-new_sha="$3"
+# Claude Code의 harness에서 호출될 때 ref 정보를 찾음
+ref_name="${CLAUDE_REF_NAME:-}"
+
+# 만약 환경변수가 없다면, git hook 스타일로 인자 사용
+if [ -z "$ref_name" ]; then
+  ref_name="${1:-}"
+fi
+
+# ref_name이 없으면 현재 브랜치 조회
+if [ -z "$ref_name" ]; then
+  ref_name="refs/heads/$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
+fi
+
+old_sha="${2:-$(git rev-parse HEAD 2>/dev/null || echo '')}"
+new_sha="${3:-}"
 
 # main 브랜치는 항상 허용
 [ "$ref_name" = "refs/heads/main" ] && exit 0

@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
-# Prepare-commit-msg hook: 커밋 메시지 검증
+# Pre-commit hook: 커밋 메시지 검증
 # - 메시지는 10자 이상이어야 합니다.
 # - 빈 줄은 무시됩니다 (merge commit 등).
 
 set -u
 
-commit_msg_file="$1"
+# Claude Code의 harness에서 호출될 때 commit message file을 찾음
+commit_msg_file="${CLAUDE_COMMIT_MSG_FILE:-}"
+
+# 만약 환경변수가 없다면, git hook 스타일로 첫 번째 인자 사용
+if [ -z "$commit_msg_file" ]; then
+  commit_msg_file="${1:-}"
+fi
+
+# 파일이 없으면 스킵 (harness 환경에서는 처리 방식이 다를 수 있음)
+if [ -z "$commit_msg_file" ] || [ ! -f "$commit_msg_file" ]; then
+  exit 0
+fi
+
 commit_source="${2:-}"
 
 # merge/squash 커밋은 검증 스킵
