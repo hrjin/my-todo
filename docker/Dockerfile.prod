@@ -1,0 +1,51 @@
+# Dockerfile.prod - 프로덕션 환경용 (최적화)
+# 빌드: docker build -f docker/Dockerfile.prod -t my-todo:prod .
+
+# Stage 1: API 빌드
+FROM maven:3.9-eclipse-temurin-21 as api-builder
+
+WORKDIR /app/api
+COPY api/pom.xml .
+COPY api/src ./src
+COPY api/mvnw* ./
+
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw.sh -q dependency:resolve
+
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw.sh -q clean package -DskipTests -f pom.xml
+
+# Stage 2: UI 빌드
+FROM node:20-alpine as ui-builder
+
+WORKDIR /app/ui
+COPY ui/package*.json ./
+
+RUN npm ci
+
+COPY ui .
+
+RUN npm run build
+
+# Stage 3: 프로덕션 런타임 (Nginx + API)
+# 참고: 실제 프로덕션은 API와 UI를 분리하거나 리버스 프록시(Nginx)를 별도 컨테이너로 구성하는 것이 권장됨
+# 현재는 통합 구성으로 진행
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+# API JAR 복사
+COPY --from=api-builder /app/api/target/api-*.jar ./api.jar
+
+# UI 빌드 결과 (정적 파일) - 프로덕션에서는 별도 Nginx 컨테이너에서 서빙하는 것이 권장됨
+COPY --from=ui-builder /app/ui/dist ./ui/dist
+
+# 데이터 디렉토리 생성
+RUN mkdir -p /app/data
+
+EXPOSE 8080
+ENV PROFILE=prod
+ENV SERVER_PORT=8080
+ENV SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+
+CMD ["java", "-jar", "api.jar", "--spring.profiles.active=${PROFILE}"]

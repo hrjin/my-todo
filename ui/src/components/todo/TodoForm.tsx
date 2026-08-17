@@ -51,6 +51,7 @@ export function TodoForm({ initialValues = EMPTY_VALUES, submitLabel, onSubmit, 
         Title
         <input
           autoFocus
+          maxLength={200}
           value={values.title}
           onChange={(e) => {
             setValues({ ...values, title: e.target.value })
@@ -64,6 +65,7 @@ export function TodoForm({ initialValues = EMPTY_VALUES, submitLabel, onSubmit, 
         Description
         <textarea
           rows={3}
+          maxLength={1000}
           value={values.description}
           onChange={(e) => setValues({ ...values, description: e.target.value })}
         />

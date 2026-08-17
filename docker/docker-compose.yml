@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # 개발 환경: API + UI 분리
+  # 사용: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: my-todo-api-dev
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${PROFILE:-dev}
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/todo-db
+      - SPRING_DATASOURCE_DRIVERCLASSNAME=org.h2.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_H2_CONSOLE_ENABLED=true
+    volumes:
+      - app-data:/app/data
+    networks:
+      - my-todo-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/todos"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ui:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: my-todo-ui-dev
+    ports:
+      - "${UI_PORT:-3000}:80"
+    environment:
+      - VITE_API_BASE_URL=${API_BASE_URL:-http://localhost:${API_PORT:-8080}/api}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - my-todo-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  app-data:
+    driver: local
+
+networks:
+  my-todo-net:
+    driver: bridge

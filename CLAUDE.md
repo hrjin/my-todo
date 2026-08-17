@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 구성은 React(FrontEnd) + SpringBoot(BackEnd, Maven) + H2(Database) + Docker(Docker Desktop을 이용해 배포)로 되어있다.
 - 연동되는 프로젝트는 총 3개(React, SpringBoot, Docker Template)이다.
 - 현재 MY-TODO 프로젝트 내 api, ui, docker 디렉토리이다.
-- **현재 상태:** `api`는 Todo CRUD(생성/목록/단건조회/수정/삭제/완료토글), category/priority/dueDate 필드, 예외처리, CORS 설정까지 구현 완료. `ui`는 Vite React-TS로 스캐폴딩 및 화면 구현 완료. `docker`는 아직 비어 있다.
+- **현재 상태:** `api`는 Todo CRUD(생성/목록/단건조회/수정/삭제/완료토글), category/priority/dueDate 필드, 예외처리, CORS 설정까지 구현 완료. `ui`는 Vite React-TS로 스캐폴딩 및 화면 구현 완료. `docker`는 멀티스테이지 Dockerfile + Docker Compose 완성. `skills`/`hooks` 정리 완료.
 
 # 기술 스택
 - **BackEnd:** Spring Boot 4.1.0 (Java 21, Maven). GroupId/ArtifactId: `my.todo:api`, 루트 패키지: `my.todo.api`. 주요 의존성: `spring-boot-starter-webmvc`, `spring-boot-starter-data-jpa`, `spring-boot-starter-validation`, `spring-boot-h2console`, `spring-boot-starter-restclient`, `spring-boot-devtools`(runtime), Lombok. 설정 파일은 `application.yml`.
@@ -14,7 +14,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **FrontEnd:** React + TypeScript (Vite). 서버 상태 관리는 TanStack Query, 스타일링은 CSS Modules, 테스트는 Vitest + React Testing Library, 린트는 ESLint(+ `@tanstack/eslint-plugin-query`). 백엔드 `ApiResponse<T>` 래퍼는 axios 인터셉터에서 언래핑.
   - ESLint 실행/규칙 관련 스킬(`.claude/skills/`)은 `ui` 스캐폴딩 완료 후 별도 작성 예정.
 - **Deploy:** Docker (Docker Desktop 활용)
+  - **Dockerfile.dev:** `docker/Dockerfile.dev` — 개발 환경 (API:8080 + UI 정적파일)
+  - **Dockerfile.prod:** `docker/Dockerfile.prod` — 프로덕션 환경 (최적화: DDL validate, H2 콘솔 비활성화)
+  - **Nginx 설정:** `docker/nginx.conf` — UI 정적 파일 서빙 + API 프록시 (`/api/` → API 컨테이너)
+  - **Docker Compose:**
+    - `docker-compose.yml` — 개발용 (Dockerfile.dev 사용). 사용: `docker-compose up`
+    - `docker-compose.prod.yml` — 프로덕션용. 사용: `docker-compose -f docker-compose.prod.yml up`
+  - **빌드 명령:**
+    ```bash
+    # DEV
+    docker build -f docker/Dockerfile.dev -t my-todo:dev .
+    docker-compose up
+    
+    # PROD
+    docker build -f docker/Dockerfile.prod -t my-todo:prod .
+    docker-compose -f docker-compose.prod.yml up
+    ```
+  - **환경변수:**
+    - `API_PORT`: API 포트 (기본 8080)
+    - `UI_PORT`: UI 포트 (기본 3000)
+    - `PROFILE`: Spring 프로필 (dev/prod)
+    - `API_BASE_URL`: UI가 호출할 API URL (기본 http://localhost:8080/api)
+    - `SPRING_DATASOURCE_URL`: H2 DB 경로 (기본 jdbc:h2:file:/app/data/todo-db)
 
+# 🛠️ Skills & Hooks
+- **Skills** (`.claude/skills/`)
+  - `validate-input.sh`: 입력값 검증 (API 요청본문, UI 입력폼, Dockerfile 형식)
+    - 사용: `bash .claude/skills/validate-input.sh [api|ui|docker]`
+- **Hooks** (`.git/hooks/`)
+  - `commit-msg`: 커밋 메시지 10자 이상 검증
+  - `pre-push`: 브랜치 네이밍 컨벤션 검증 (feature/*, fix/*, refactor/*, test/*)
+
+# 구현 방향
 ## 🛠️ Build & Test Commands
 - **BackEnd (`api/` 디렉토리에서 실행):**
   - JDK 21이 기본 `JAVA_HOME`이 아닐 경우, 커맨드 앞에 인라인으로 지정: `JAVA_HOME="/d/Workspace/java" ./mvnw.cmd ...`

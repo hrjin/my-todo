@@ -1,0 +1,48 @@
+# Dockerfile.dev - 개발 환경용
+# 빌드: docker build -f docker/Dockerfile.dev -t my-todo:dev .
+
+# Stage 1: API 빌드
+FROM maven:3.9-eclipse-temurin-21 as api-builder
+
+WORKDIR /app/api
+COPY api/pom.xml .
+COPY api/src ./src
+COPY api/mvnw* ./
+
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw.sh -q dependency:resolve
+
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw.sh -q clean package -DskipTests -f pom.xml
+
+# Stage 2: UI 빌드
+FROM node:20-alpine as ui-builder
+
+WORKDIR /app/ui
+COPY ui/package*.json ./
+
+RUN npm ci
+
+COPY ui .
+
+RUN npm run build
+
+# Stage 3: 개발 런타임
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+# API JAR 복사
+COPY --from=api-builder /app/api/target/api-*.jar ./api.jar
+
+# UI 빌드 결과 복사
+COPY --from=ui-builder /app/ui/dist ./ui/dist
+
+# 데이터 디렉토리 생성
+RUN mkdir -p /app/data
+
+EXPOSE 8080
+ENV PROFILE=dev
+ENV SERVER_PORT=8080
+
+CMD ["java", "-jar", "api.jar", "--spring.profiles.active=${PROFILE}"]
